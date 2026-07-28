@@ -39,5 +39,21 @@ Future Enhancements
 - Meal cancellation feature
 - Email and SMS notifications
 - Attendance reports
+- 
+Project Screenshots
+Student Login
+[Student Login](screenshots/login-page.png)
+
+Day Selection
+[Day Selection](screenshots/day-selection.png)
+
+Menu Selection
+[Menu Selection](screenshots/menu-selection.png)
+
+Monthly Bill
+[Monthly Bill](screenshots/monthly-bill.png)
+
+QR Code Payment
+[QR Code Payment](screenshots/qr-code.png)
 
 This project was developed as a college project to demonstrate a smart and digital approach to hostel mess management.
