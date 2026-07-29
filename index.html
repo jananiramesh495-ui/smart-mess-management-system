@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hive Hostel - Smart Mess Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 80px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-icon {
+            width: 50px;
+            height: 50px;
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 24px;
+            color: white;
+        }
+
+        .nav-icon:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .nav-icon.active {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: 80px;
+            width: calc(100% - 80px);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .page {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Home Page */
+        .home-container {
+            text-align: center;
+            color: white;
+        }
+
+        .home-container h1 {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .home-container p {
+            font-size: 1.5rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .login-btn {
+            padding: 20px 60px;
+            font-size: 1.5rem;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .login-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        /* Login Page */
+        .login-container {
+            background: white;
+            padding: 60px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .login-container h2 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.2rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Day Selection Page */
+        .day-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .day-card {
+            background: white;
+            padding: 60px 40px;
+            border-radius: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .day-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        .day-card h3 {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .day-card p {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        /* Menu Page */
+        .menu-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .menu-container h2 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .meal-section {
+            margin-bottom: 30px;
+        }
+
+        .meal-section h3 {
+            font-size: 1.8rem;
+            color: #764ba2;
+            margin-bottom: 15px;
+        }
+
+        .meal-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+
+        .meal-item:hover {
+            background: #e9ecef;
+        }
+
+        .meal-item.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .meal-info {
+            flex: 1;
+        }
+
+        .meal-info h4 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .meal-price {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .meal-item.selected .meal-price {
+            color: white;
+        }
+
+        .view-bill-btn {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.5rem;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .view-bill-btn:hover {
+            background: #218838;
+            transform: translateY(-3px);
+        }
+
+        /* Bill Page */
+        .bill-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .bill-container h2 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .bill-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .bill-info p {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .bill-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .bill-table th,
+        .bill-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 2px solid #e0e0e0;
+            font-size: 1.1rem;
+        }
+
+        .bill-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 1.3rem;
+        }
+
+        .total-amount {
+            text-align: right;
+            font-size: 2rem;
+            color: #28a745;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+
+        .payment-section {
+            text-align: center;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .payment-section h3 {
+            color: #667eea;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .qr-code {
+            width: 300px;
+            height: 300px;
+            background: white;
+            margin: 20px auto;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #666;
+            border: 3px solid #667eea;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.5rem;
+            color: #667eea;
+        }
+
+        .back-btn {
+            padding: 12px 30px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+        }
+
+        /* Scanner Page Styles */
+        .meal-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .meal-card h4 {
+            color: #667eea;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .meal-card p {
+            font-size: 1.1rem;
+            color: #333;
+            margin: 5px 0;
+        }
+
+        .confirm-btn {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.5rem;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .confirm-btn:hover {
+            background: #218838;
+            transform: translateY(-3px);
+        }
+
+        .student-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .student-header h3 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="nav-icon" onclick="showPage('home')" title="Home">🏠</div>
+        <div class="nav-icon" onclick="showPage('login')" title="Login">🔐</div>
+        <div class="nav-icon" onclick="showDaySelection()" title="Menu">📅</div>
+        <div class="nav-icon" onclick="showPage('scanner')" title="Scan ID">📷</div>
+        <div class="nav-icon" onclick="showBill()" title="Bill">💰</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Home Page -->
+        <div id="home" class="page active">
+            <div class="home-container">
+                <h1>🏠 Hive Hostel</h1>
+                <p>Smart Mess Management System</p>
+                <button class="login-btn" onclick="showPage('login')">Login to Continue</button>
+            </div>
+        </div>
+
+        <!-- Login Page -->
+        <div id="login" class="page">
+            <div class="login-container">
+                <h2>Student Login</h2>
+                <div class="input-group">
+                    <input type="text" id="studentId" placeholder="Enter Student ID" required>
+                </div>
+                <button class="submit-btn" onclick="handleLogin()">Login</button>
+            </div>
+        </div>
+
+        <!-- Day Selection Page -->
+        <div id="daySelection" class="page">
+            <div class="day-container">
+                <div class="day-card" onclick="showMenu('Monday')">
+                    <h3>Monday</h3>
+                    <p>Select meals for Monday</p>
+                </div>
+                <div class="day-card" onclick="showMenu('Tuesday')">
+                    <h3>Tuesday</h3>
+                    <p>Select meals for Tuesday</p>
+                </div>
+                <div class="day-card" onclick="showMenu('Wednesday')">
+                    <h3>Wednesday</h3>
+                    <p>Select meals for Wednesday</p>
+                </div>
+                <div class="day-card" onclick="showMenu('Thursday')">
+                    <h3>Thursday</h3>
+                    <p>Select meals for Thursday</p>
+                </div>
+                <div class="day-card" onclick="showMenu('Friday')">
+                    <h3>Friday</h3>
+                    <p>Select meals for Friday</p>
+                </div>
+                <div class="day-card" onclick="showMenu('Saturday')">
+                    <h3>Saturday</h3>
+                    <p>Select meals for Saturday</p>
+                </div>
+                <div class="day-card" onclick="showMenu('Sunday')">
+                    <h3>Sunday</h3>
+                    <p>Select meals for Sunday</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Page -->
+        <div id="menu" class="page">
+            <div class="menu-container">
+                <h2 id="menuDay">Menu</h2>
+                
+                <div class="meal-section">
+                    <h3>🌅 Breakfast</h3>
+                    <div class="meal-item" onclick="selectMeal(this, 'Breakfast', 'Idli + Sambar', 50)">
+                        <div class="meal-info">
+                            <h4>Idli + Sambar</h4>
+                        </div>
+                        <div class="meal-price">₹50</div>
+                    </div>
+                </div>
+
+                <div class="meal-section">
+                    <h3>🍛 Lunch</h3>
+                    <div class="meal-item" onclick="selectMeal(this, 'Lunch', 'Meals', 70)">
+                        <div class="meal-info">
+                            <h4>Meals</h4>
+                        </div>
+                        <div class="meal-price">₹70</div>
+                    </div>
+                </div>
+
+                <div class="meal-section">
+                    <h3>🌙 Dinner</h3>
+                    <div class="meal-item" onclick="selectMeal(this, 'Dinner', 'Dosa', 60)">
+                        <div class="meal-info">
+                            <h4>Dosa</h4>
+                        </div>
+                        <div class="meal-price">₹60</div>
+                    </div>
+                </div>
+
+                <button class="view-bill-btn" onclick="showBill()">View Monthly Bill</button>
+                <button class="back-btn" onclick="showDaySelection()">← Back to Days</button>
+            </div>
+        </div>
+
+        <!-- Bill Page -->
+        <div id="bill" class="page">
+            <div class="bill-container">
+                <h2>📊 Monthly Bill</h2>
+                <div id="billContent" class="loading">Loading bill details...</div>
+            </div>
+        </div>
+
+        <!-- Scanner Page (Mess Entrance) -->
+        <div id="scanner" class="page">
+            <div class="login-container" style="max-width: 600px;">
+                <h2>📷 Scan Student ID</h2>
+                <p style="color: #666; margin-bottom: 30px; font-size: 1.1rem;">
+                    Scan barcode at mess entrance to verify meals
+                </p>
+                
+                <div class="input-group">
+                    <input type="text" id="scannerInput" placeholder="Scan barcode or enter Student ID" 
+                           style="font-size: 1.5rem; text-align: center; font-weight: bold;"
+                           oninput="this.value = this.value.toUpperCase()" autofocus>
+                </div>
+                
+                <button class="submit-btn" onclick="verifyStudent()">✓ Verify & Show Meals</button>
+                
+                <div id="verificationResult" style="margin-top: 30px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - REPLACE WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz9tQx5ZUOK_OQ2VcEeYVzgKb1dOKEykHosoeaT0MNrlOI2AeM0LAvMK_BSu1P1Zxo/exec';
+        
+        // Global variables
+        let currentStudentId = localStorage.getItem('studentId') || '';
+        let currentDay = '';
+
+        // Weekly menu data - Different meals for each day
+        const weeklyMenu = {
+            'Monday': {
+                breakfast: { name: 'Poha + Tea', price: 40 },
+                lunch: { name: 'Dal Rice + Roti + Sabzi', price: 70 },
+                dinner: { name: 'Chapati + Paneer Curry', price: 80 }
+            },
+            'Tuesday': {
+                breakfast: { name: 'Paratha + Curd', price: 50 },
+                lunch: { name: 'Rajma Rice + Salad', price: 75 },
+                dinner: { name: 'Fried Rice + Manchurian', price: 85 }
+            },
+            'Wednesday': {
+                breakfast: { name: 'Idli + Sambar + Chutney', price: 50 },
+                lunch: { name: 'Chole Rice + Roti', price: 70 },
+                dinner: { name: 'Masala Dosa + Sambhar', price: 60 }
+            },
+            'Thursday': {
+                breakfast: { name: 'Upma + Coffee', price: 40 },
+                lunch: { name: 'Veg Pulao + Raita + Papad', price: 80 },
+                dinner: { name: 'Roti + Dal Makhani', price: 75 }
+            },
+            'Friday': {
+                breakfast: { name: 'Aloo Paratha + Pickle', price: 55 },
+                lunch: { name: 'Biryani + Raita', price: 90 },
+                dinner: { name: 'Pizza + Garlic Bread', price: 100 }
+            },
+            'Saturday': {
+                breakfast: { name: 'Bread Omelette + Tea', price: 45 },
+                lunch: { name: 'Kadhi Rice + Bhindi Fry', price: 70 },
+                dinner: { name: 'Burger + Fries + Cold Drink', price: 95 }
+            },
+            'Sunday': {
+                breakfast: { name: 'Puri Bhaji + Jalebi', price: 60 },
+                lunch: { name: 'Special Thali (Rice+Roti+3 Sabzi)', price: 100 },
+                dinner: { name: 'Noodles + Spring Roll', price: 85 }
+            }
+        };
+
+        // Page navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+            
+            // Update sidebar active state
+            document.querySelectorAll('.nav-icon').forEach(icon => {
+                icon.classList.remove('active');
+            });
+        }
+
+        // Handle login
+        function handleLogin() {
+            const studentId = document.getElementById('studentId').value.trim();
+            
+            if (!studentId) {
+                alert('Please enter your Student ID');
+                return;
+            }
+            
+            currentStudentId = studentId;
+            localStorage.setItem('studentId', studentId);
+            showDaySelection();
+        }
+
+        // Show day selection
+        function showDaySelection() {
+            if (!currentStudentId) {
+                showPage('login');
+                return;
+            }
+            showPage('daySelection');
+        }
+
+        // Show menu for selected day
+        function showMenu(day) {
+            currentDay = day;
+            document.getElementById('menuDay').textContent = `${day} Menu`;
+            
+            // Get menu for the selected day
+            const menu = weeklyMenu[day];
+            
+            // Update menu items
+            const menuContainer = document.querySelector('#menu .menu-container');
+            menuContainer.innerHTML = `
+                <h2 id="menuDay">${day} Menu</h2>
+                
+                <div class="meal-section">
+                    <h3>🌅 Breakfast</h3>
+                    <div class="meal-item" onclick="selectMeal(this, 'Breakfast', '${menu.breakfast.name}', ${menu.breakfast.price})">
+                        <div class="meal-info">
+                            <h4>${menu.breakfast.name}</h4>
+                        </div>
+                        <div class="meal-price">₹${menu.breakfast.price}</div>
+                    </div>
+                </div>
+
+                <div class="meal-section">
+                    <h3>🍛 Lunch</h3>
+                    <div class="meal-item" onclick="selectMeal(this, 'Lunch', '${menu.lunch.name}', ${menu.lunch.price})">
+                        <div class="meal-info">
+                            <h4>${menu.lunch.name}</h4>
+                        </div>
+                        <div class="meal-price">₹${menu.lunch.price}</div>
+                    </div>
+                </div>
+
+                <div class="meal-section">
+                    <h3>🌙 Dinner</h3>
+                    <div class="meal-item" onclick="selectMeal(this, 'Dinner', '${menu.dinner.name}', ${menu.dinner.price})">
+                        <div class="meal-info">
+                            <h4>${menu.dinner.name}</h4>
+                        </div>
+                        <div class="meal-price">₹${menu.dinner.price}</div>
+                    </div>
+                </div>
+
+                <button class="view-bill-btn" onclick="showBill()">View Monthly Bill</button>
+                <button class="back-btn" onclick="showDaySelection()">← Back to Days</button>
+            `;
+            
+            showPage('menu');
+        }
+
+        // Select meal and save to Google Sheets
+        async function selectMeal(element, mealType, mealName, price) {
+            if (!currentStudentId) {
+                showPage('login');
+                return;
+            }
+
+            // Toggle selection
+            element.classList.toggle('selected');
+            
+            if (element.classList.contains('selected')) {
+                // Save to Google Sheets
+                await saveMealSelection(mealType, mealName, price);
+            }
+        }
+
+        // Save meal selection to Google Sheets
+        async function saveMealSelection(mealType, mealName, price) {
+            const data = {
+                studentId: currentStudentId,
+                day: currentDay,
+                date: new Date().toISOString().split('T')[0],
+                meal: `${mealType} - ${mealName}`,
+                price: price
+            };
+
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                console.log('Meal saved successfully:', result);
+            } catch (error) {
+                console.error('Error saving meal:', error);
+                alert('Failed to save meal. Please check your connection and try again.');
+            }
+        }
+
+        // Show bill page
+        async function showBill() {
+            if (!currentStudentId) {
+                showPage('login');
+                return;
+            }
+
+            showPage('bill');
+            document.getElementById('billContent').innerHTML = '<div class="loading">Loading bill details...</div>';
+            
+            await loadBillData();
+        }
+
+        // Load bill data from Google Sheets
+        async function loadBillData() {
+            try {
+                const response = await fetch(`${APPS_SCRIPT_URL}?studentId=${currentStudentId}`);
+                const data = await response.json();
+                
+                displayBill(data);
+            } catch (error) {
+                console.error('Error loading bill:', error);
+                document.getElementById('billContent').innerHTML = `
+                    <div class="bill-info">
+                        <p><strong>Student ID:</strong> ${currentStudentId}</p>
+                        <p><strong>Month:</strong> ${new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}</p>
+                    </div>
+                    <p style="text-align: center; color: #666; font-size: 1.2rem;">
+                        No data available or unable to connect to server.<br>
+                        Please configure your Google Apps Script URL.
+                    </p>
+                    <div class="payment-section">
+                        <h3>💳 Pay Your Bill</h3>
+                        <div class="qr-code">
+                            📱 Scan QR Code<br>to Pay
+                        </div>
+                        <p style="font-size: 1.2rem; color: #666;">
+                            Use Google Pay, PhonePe, or Paytm
+                        </p>
+                    </div>
+                    <button class="back-btn" onclick="showDaySelection()">← Back to Menu</button>
+                `;
+            }
+        }
+
+        // Display bill data
+        function displayBill(data) {
+            const currentMonth = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+            const meals = data.meals || [];
+            const totalAmount = data.totalAmount || 0;
+
+            // Generate UPI payment link with amount
+            const upiId = "7395896532@ptsbi"; // Your actual UPI ID
+            const merchantName = "Hive_Hostel";
+            const upiLink = `upi://pay?pa=${upiId}&pn=${merchantName}&am=${totalAmount}&cu=INR&tn=Mess_Bill_${currentMonth.replace(' ', '_')}`;
+            
+            // Generate QR code using QR Server API
+            const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(upiLink)}&format=png`;
+
+            let tableRows = '';
+            meals.forEach(meal => {
+                tableRows += `
+                    <tr>
+                        <td>${meal.date}</td>
+                        <td>${meal.day}</td>
+                        <td>${meal.meal}</td>
+                        <td>₹${meal.price}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('billContent').innerHTML = `
+                <div class="bill-info">
+                    <p><strong>Student ID:</strong> ${currentStudentId}</p>
+                    <p><strong>Month:</strong> ${currentMonth}</p>
+                </div>
+                
+                ${meals.length > 0 ? `
+                    <table class="bill-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Day</th>
+                                <th>Meal</th>
+                                <th>Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRows}
+                        </tbody>
+                    </table>
+                    
+                    <div class="total-amount">
+                        Total Amount: ₹${totalAmount}
+                    </div>
+                ` : `
+                    <p style="text-align: center; color: #666; font-size: 1.2rem; padding: 20px;">
+                        No meals selected yet for this month.
+                    </p>
+                `}
+                
+                <div class="payment-section">
+                    <h3>💳 Pay Your Bill</h3>
+                    <p style="font-size: 1.5rem; color: #28a745; font-weight: bold; margin-bottom: 20px;">
+                        Amount to Pay: ₹${totalAmount}
+                    </p>
+                    ${totalAmount > 0 ? `
+                        <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 350px; margin: 0 auto;">
+                            <img src="${qrCodeUrl}" 
+                                 alt="UPI Payment QR Code" 
+                                 style="width: 280px; height: 280px; display: block; margin: 0 auto; border-radius: 8px;"
+                                 onload="console.log('QR Code loaded successfully')"
+                                 onerror="console.error('QR Code failed to load'); this.style.display='none'; this.parentElement.innerHTML='<div style=text-align:center;padding:40px;><p style=color:#e74c3c;font-size:1.2rem;margin-bottom:20px;>⚠️ QR Code Failed to Load</p><p style=font-size:1.1rem;color:#666;margin-bottom:10px;><strong>Pay manually to:</strong></p><p style=font-size:1.5rem;color:#667eea;font-weight:bold;margin-bottom:10px;>${upiId}</p><p style=font-size:1.3rem;color:#28a745;font-weight:bold;>Amount: ₹${totalAmount}</p></div>';">
+                        </div>
+                        <p style="font-size: 1.2rem; color: #666; margin-top: 20px; font-weight: 500;">
+                            <strong>Scan with:</strong> Google Pay, PhonePe, Paytm, or any UPI app
+                        </p>
+                        <p style="font-size: 1.1rem; color: #667eea; margin-top: 10px; font-weight: 600;">
+                            UPI ID: ${upiId}
+                        </p>
+                        <p style="font-size: 1rem; color: #28a745; margin-top: 10px; font-weight: bold;">
+                            Amount: ₹${totalAmount} (Pre-filled)
+                        </p>
+                        <p style="font-size: 0.9rem; color: #999; margin-top: 8px; font-style: italic;">
+                            ✓ Amount will be automatically filled when you scan
+                        </p>
+                    ` : `
+                        <div style="padding: 40px; background: #f8f9fa; border-radius: 12px;">
+                            <p style="font-size: 1.3rem; color: #666;">
+                                📱 QR code will appear once you select meals
+                            </p>
+                        </div>
+                    `}
+                </div>
+                
+                <button class="back-btn" onclick="showDaySelection()">← Back to Menu</button>
+            `;
+        }
+
+        // Initialize on page load
+        window.onload = function() {
+            if (currentStudentId) {
+                // Auto-redirect to day selection if already logged in
+                // showDaySelection();
+            }
+            
+            // Auto-submit scanner when barcode is scanned (usually ends with Enter)
+            document.getElementById('scannerInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    verifyStudent();
+                }
+            });
+        };
+
+        // Verify student at mess entrance
+        async function verifyStudent() {
+            const scannedId = document.getElementById('scannerInput').value.trim().toUpperCase();
+            const resultDiv = document.getElementById('verificationResult');
+            
+            if (!scannedId) {
+                resultDiv.innerHTML = '<div class="alert-error">⚠️ Please scan or enter Student ID</div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="loading">Verifying student and fetching today\'s meals...</div>';
+            
+            try {
+                // Get today's day
+                const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const today = days[new Date().getDay()];
+                
+                // Fetch student's meal data from Google Sheets
+                const response = await fetch(`${APPS_SCRIPT_URL}?studentId=${scannedId}&day=${today}`);
+                const data = await response.json();
+                
+                if (data.success && data.todayMeals && data.todayMeals.length > 0) {
+                    displayTodayMeals(scannedId, today, data.todayMeals);
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="alert-error">
+                            ❌ No meals selected for today<br>
+                            <strong>Student ID:</strong> ${scannedId}<br>
+                            <strong>Day:</strong> ${today}<br><br>
+                            Please select meals from the website first
+                        </div>
+                        <button class="back-btn" onclick="clearScanner()">← Scan Another ID</button>
+                    `;
+                }
+            } catch (error) {
+                console.error('Verification error:', error);
+                resultDiv.innerHTML = `
+                    <div class="alert-error">
+                        ⚠️ Unable to verify student<br>
+                        Please check connection or try again
+                    </div>
+                    <button class="back-btn" onclick="clearScanner()">← Try Again</button>
+                `;
+            }
+        }
+
+        // Display today's meals for confirmation
+        function displayTodayMeals(studentId, day, meals) {
+            const resultDiv = document.getElementById('verificationResult');
+            
+            let mealsHtml = '';
+            meals.forEach(meal => {
+                mealsHtml += `
+                    <div class="meal-card">
+                        <h4>${meal.meal}</h4>
+                        <p><strong>Price:</strong> ₹${meal.price}</p>
+                    </div>
+                `;
+            });
+            
+            resultDiv.innerHTML = `
+                <div class="student-header">
+                    <h3>✓ Student Verified</h3>
+                    <p style="font-size: 1.3rem; margin-top: 10px;">ID: ${studentId}</p>
+                    <p style="font-size: 1.1rem;">Day: ${day}</p>
+                </div>
+                
+                <h3 style="color: #667eea; margin-bottom: 20px; font-size: 1.8rem;">Today's Selected Meals:</h3>
+                ${mealsHtml}
+                
+                <button class="confirm-btn" onclick="confirmMealDelivery('${studentId}')">
+                    ✓ Confirm & Allow Entry
+                </button>
+                
+                <button class="back-btn" onclick="clearScanner()">← Scan Another ID</button>
+            `;
+        }
+
+        // Confirm meal delivery
+        function confirmMealDelivery(studentId) {
+            const resultDiv = document.getElementById('verificationResult');
+            
+            resultDiv.innerHTML = `
+                <div class="alert-success">
+                    ✅ ENTRY CONFIRMED<br><br>
+                    Student ID: ${studentId}<br>
+                    Meals verified and approved<br><br>
+                    Student can collect meals now
+                </div>
+                <button class="back-btn" onclick="clearScanner()" style="margin-top: 30px;">← Scan Next Student</button>
+            `;
+            
+            // Auto-clear after 3 seconds
+            setTimeout(() => {
+                clearScanner();
+            }, 3000);
+        }
+
+        // Clear scanner for next student
+        function clearScanner() {
+            document.getElementById('scannerInput').value = '';
+            document.getElementById('verificationResult').innerHTML = '';
+            document.getElementById('scannerInput').focus();
+        }
+    </script>
+</body>
+</html>
